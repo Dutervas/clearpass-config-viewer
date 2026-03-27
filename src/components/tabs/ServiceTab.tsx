@@ -6,7 +6,6 @@ export function ServiceTab({ data }: { data: ParsedService }) {
   const hasAuthorization = data.autzSources.length > 0;
   const hasAccounting = data.acctProxyTargets.length > 0;
 
-  // Convertendo as regras para o formato esperado pelo DataTable
   const ruleRows = data.serviceRules.map((rule) => ({
     Type: rule.type,
     Name: rule.name,
@@ -21,6 +20,14 @@ export function ServiceTab({ data }: { data: ParsedService }) {
         <FieldRow label="Description" value={data.description} />
         <FieldRow label="Type" value="802.1X Wireless" />
         <FieldRow label="Status" value={data.status} />
+        
+        {/* Novos campos exibidos condicionalmente se existirem */}
+        {data.actionProfile !== "—" && (
+          <FieldRow label="Action Profile Name" value={data.actionProfile} />
+        )}
+        {data.category !== "—" && (
+          <FieldRow label="Category" value={data.category} />
+        )}
 
         <div className="flex gap-3 py-2">
           <span className="font-semibold text-secondary-foreground min-w-[180px]">

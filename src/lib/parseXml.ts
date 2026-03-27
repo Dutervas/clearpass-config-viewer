@@ -7,6 +7,8 @@ export interface ParsedService {
   auditEndHosts: boolean;
   profileEndpoints: boolean;
   useCachedResults: boolean;
+  actionProfile: string;   // NOVO
+  category: string;        // NOVO
   serviceRules: ServiceRule[];
   authMethods: string[];
   authSources: string[];
@@ -96,13 +98,16 @@ export function parseXml(xmlString: string): ParsedService {
   const name = getAttr(svc, "name", "Unknown Service");
   const description = getAttr(svc, "description");
   
-  // Novos campos extraídos
   const status = getAttr(svc, "enabled") === "true" ? "Enabled" : "Disabled";
   const monitorMode = getAttr(svc, "monitor") === "true";
   const postureCompliance = getAttr(svc, "postureEnabled") === "true";
   const auditEndHosts = getAttr(svc, "auditEnabled") === "true";
   const profileEndpoints = getAttr(svc, "profilerEnabled") === "true";
   const useCachedResults = getAttr(svc, "useCachedResults") === "true";
+  
+  // Novos campos extraídos
+  const actionProfile = getAttr(svc, "actionProfileName", "—");
+  const category = getAttr(svc, "categoryCsv", "—");
 
   // Service Rules
   const serviceRules: ServiceRule[] = [];
@@ -224,8 +229,8 @@ export function parseXml(xmlString: string): ParsedService {
 
   return {
     name, description, status, monitorMode, postureCompliance, 
-    auditEndHosts, profileEndpoints, useCachedResults, serviceRules, 
-    authMethods, authSources, stripUsername, stripRulesCsv, autzSources, 
+    auditEndHosts, profileEndpoints, useCachedResults, actionProfile, category,
+    serviceRules, authMethods, authSources, stripUsername, stripRulesCsv, autzSources, 
     roleMappingName, roleMapping, enfPolicyName, enfPolicy, 
     acctProxyTargets, acctFilterParams,
   };
