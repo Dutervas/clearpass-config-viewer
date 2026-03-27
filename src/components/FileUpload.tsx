@@ -3,10 +3,22 @@ import { Upload } from "lucide-react";
 
 interface FileUploadProps {
   onFileLoaded: (content: string) => void;
+  isBlocked?: boolean;
+  onBlockedAttempt?: () => void;
 }
 
-export function FileUpload({ onFileLoaded }: FileUploadProps) {
+export function FileUpload({ onFileLoaded, isBlocked, onBlockedAttempt }: FileUploadProps) {
   const [dragOver, setDragOver] = useState(false);
+
+  const handleIntercept = (e: React.MouseEvent | React.DragEvent) => {
+    if (isBlocked && onBlockedAttempt) {
+      e.preventDefault();
+      e.stopPropagation();
+      onBlockedAttempt();
+      return true; // was blocked
+    }
+    return false; // not blocked
+  };
 
   const handleFile = useCallback(
     (file: File) => {
@@ -30,16 +42,22 @@ export function FileUpload({ onFileLoaded }: FileUploadProps) {
       }`}
       onDragOver={(e) => {
         e.preventDefault();
+        if (isBlocked) return;
         setDragOver(true);
       }}
       onDragLeave={() => setDragOver(false)}
       onDrop={(e) => {
+        if (handleIntercept(e)) {
+          setDragOver(false);
+          return;
+        }
         e.preventDefault();
         setDragOver(false);
         const file = e.dataTransfer.files[0];
         if (file) handleFile(file);
       }}
-      onClick={() => {
+      onClick={(e) => {
+        if (handleIntercept(e)) return;
         const input = document.createElement("input");
         input.type = "file";
         input.accept = ".xml";
