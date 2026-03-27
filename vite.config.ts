@@ -3,9 +3,10 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/", // <-- ADICIONE ISSO AQUI (Mude para "/nome-do-repo/" se não for o repo principal)
+  // MUDE AQUI: Coloque o nome do repositório entre as barras
+  base: "/clearpass-config-viewer/", 
+  
   server: {
     host: "::",
     port: 8080,
