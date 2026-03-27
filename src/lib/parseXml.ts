@@ -1,6 +1,12 @@
 export interface ParsedService {
   name: string;
   description: string;
+  status: string;
+  monitorMode: boolean;
+  postureCompliance: boolean;
+  auditEndHosts: boolean;
+  profileEndpoints: boolean;
+  useCachedResults: boolean;
   serviceRules: ServiceRule[];
   authMethods: string[];
   authSources: string[];
@@ -89,6 +95,14 @@ export function parseXml(xmlString: string): ParsedService {
 
   const name = getAttr(svc, "name", "Unknown Service");
   const description = getAttr(svc, "description");
+  
+  // Novos campos extraídos
+  const status = getAttr(svc, "enabled") === "true" ? "Enabled" : "Disabled";
+  const monitorMode = getAttr(svc, "monitor") === "true";
+  const postureCompliance = getAttr(svc, "postureEnabled") === "true";
+  const auditEndHosts = getAttr(svc, "auditEnabled") === "true";
+  const profileEndpoints = getAttr(svc, "profilerEnabled") === "true";
+  const useCachedResults = getAttr(svc, "useCachedResults") === "true";
 
   // Service Rules
   const serviceRules: ServiceRule[] = [];
@@ -209,8 +223,10 @@ export function parseXml(xmlString: string): ParsedService {
   }
 
   return {
-    name, description, serviceRules, authMethods, authSources,
-    stripUsername, stripRulesCsv, autzSources, roleMappingName,
-    roleMapping, enfPolicyName, enfPolicy, acctProxyTargets, acctFilterParams,
+    name, description, status, monitorMode, postureCompliance, 
+    auditEndHosts, profileEndpoints, useCachedResults, serviceRules, 
+    authMethods, authSources, stripUsername, stripRulesCsv, autzSources, 
+    roleMappingName, roleMapping, enfPolicyName, enfPolicy, 
+    acctProxyTargets, acctFilterParams,
   };
 }
