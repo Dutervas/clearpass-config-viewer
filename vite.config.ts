@@ -4,9 +4,8 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  // MUDE AQUI: Coloque o nome do repositório entre as barras
-  base: "/clearpass-config-viewer/", 
-  
+  base: "/clearpass-config-viewer/",
+
   server: {
     host: "::",
     port: 8080,
@@ -14,7 +13,14 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+
+  build: {
+    outDir: "docs",
+    emptyOutDir: true,
+  },
+
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
