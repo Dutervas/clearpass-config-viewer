@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FileUpload } from "@/components/FileUpload";
 import { ServiceViewer } from "@/components/ServiceViewer";
-import { Quiz } from "@/components/Quiz";
+import { Quiz, type QuizAnswer } from "@/components/Quiz";
 import { parseXml, type ParsedService } from "@/lib/parseXml";
 import { Shield } from "lucide-react";
 
@@ -17,14 +17,16 @@ const Index = () => {
   // Estados do Quiz e Controle
   const [quizFinished, setQuizFinished] = useState(false);
   const [userName, setUserName] = useState("");
+  const [quizAnswers, setQuizAnswers] = useState<QuizAnswer[]>([]);
   const [isAllCorrect, setIsAllCorrect] = useState(false);
   const [showPunishmentModal, setShowPunishmentModal] = useState(false);
 
-  const handleQuizComplete = (name: string, correct: boolean) => {
-    setUserName(name);
-    setIsAllCorrect(correct);
-    setQuizFinished(true);
-  };
+  const handleQuizComplete = (name: string, correct: boolean, answers: QuizAnswer[]) => {
+  setUserName(name);
+  setQuizAnswers(answers);
+  setIsAllCorrect(correct);
+  setQuizFinished(true);
+};
 
   const handleFile = (content: string) => {
     try {
@@ -77,7 +79,9 @@ const Index = () => {
               <button 
                 onClick={() => {
                   setShowPunishmentModal(false);
-                  setQuizFinished(false); // Reinicia o quiz
+                  setQuizFinished(false);
+                  setData(null);
+                  setError(null);
                 }}
                 className="w-full py-3 bg-primary text-primary-foreground font-bold rounded hover:opacity-90"
               >
@@ -103,22 +107,56 @@ const Index = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8 relative z-10">
-        {!data && (
-          <div className="no-print">
-            <FileUpload 
-              onFileLoaded={handleFile} 
-              isBlocked={!isAllCorrect}
-              onBlockedAttempt={() => setShowPunishmentModal(true)}
-            />
-            {error && (
-              <p className="mt-4 text-destructive text-sm text-center font-bold bg-destructive/10 p-2 rounded">
-                {error}
+  <div className="flex flex-col lg:flex-row gap-6 items-start">
+    <aside className="w-full lg:w-80 shrink-0 no-print">
+      <div className="sticky top-6 rounded-xl border border-border bg-card p-5 shadow-sm space-y-5">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Operador</p>
+          <h2 className="mt-1 text-xl font-bold text-foreground break-words">{userName}</h2>
+        </div>
+
+        <div className="rounded-lg border border-border bg-muted/40 p-3">
+          <p className="text-sm font-semibold text-foreground">Status do juramento</p>
+          <p className={`mt-1 text-sm font-medium ${isAllCorrect ? "text-green-600" : "text-amber-600"}`}>
+            {isAllCorrect ? "Aprovado para enviar XML" : "Bloqueado até refazer o quiz"}
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-sm font-semibold text-foreground">Respostas informadas</p>
+          {quizAnswers.map((item, index) => (
+            <div key={item.question} className="rounded-lg border border-border bg-background p-3">
+              <p className="text-xs font-semibold text-muted-foreground">Pergunta {index + 1}</p>
+              <p className="mt-1 text-sm text-foreground leading-relaxed">{item.question}</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Resposta: <span className="font-semibold text-foreground">{item.answer}</span>
               </p>
-            )}
-          </div>
-        )}
-        {data && <ServiceViewer data={data} onReset={() => setData(null)} />}
-      </main>
+            </div>
+          ))}
+        </div>
+      </div>
+    </aside>
+
+    <section className="flex-1 min-w-0">
+      {!data && (
+        <div className="no-print">
+          <FileUpload
+            onFileLoaded={handleFile}
+            isBlocked={!isAllCorrect}
+            onBlockedAttempt={() => setShowPunishmentModal(true)}
+          />
+          {error && (
+            <p className="mt-4 text-destructive text-sm text-center font-bold bg-destructive/10 p-2 rounded">
+              {error}
+            </p>
+          )}
+        </div>
+      )}
+
+      {data && <ServiceViewer data={data} onReset={() => setData(null)} />}
+    </section>
+  </div>
+</main>
     </div>
   );
 };
